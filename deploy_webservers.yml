@@ -1,0 +1,52 @@
+---
+- name: Deploy Apache Web Server on VM1 and VM2
+  hosts: webservers
+  become: yes
+  tasks:
+    - name: Install Apache
+      apt:
+        name: apache2
+        state: present
+        update_cache: yes
+
+    - name: Ensure Apache is started and enabled
+      systemd:
+        name: apache2
+        state: started
+        enabled: yes
+
+    - name: Copy the web page content to the server
+      copy:
+        dest: /var/www/html/index.html
+        content: |
+          <html>
+            <head><title>Hello World</title></head>
+            <body><h1>Hello World from SJSU-
+            {{ inventory_hostname }}</h1></body>
+          </html>
+
+    - name: Change Apache port to 8080
+      lineinfile:
+        path: /etc/apache2/ports.conf
+        regexp: '^Listen 80'
+        line: 'Listen 8080'
+        state: present
+
+    - name: Update VirtualHost to listen on port 8080
+      lineinfile:
+        path: /etc/apache2/sites-enabled/000-default.conf
+        regexp: 'VirtualHost \*:80'
+        line: '<VirtualHost *:8080>'
+        state: present
+
+    - name: Allow traffic on port 8080
+      ufw:
+        rule: allow
+        port: "8080"
+        proto: tcp
+
+    - name: Restart Apache to apply changes
+      service:
+        name: apache2
+        state: restarted
+        enabled: yes
