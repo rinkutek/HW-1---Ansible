@@ -1,0 +1,29 @@
+- name: Undeploy Apache Web Server
+  hosts: webservers
+  become: yes
+  tasks:
+    - name: Stop Apache service
+      systemd:
+        name: apache2
+        state: stopped
+        enabled: no
+
+    - name: Remove Apache package
+      apt:
+        name: apache2
+        state: absent
+
+    - name: Remove web server content
+      command: rm -rf /var/www/html
+
+    - name: Remove Apache log files
+      command: rm -rf /var/log/apache2
+
+    - name: Remove Apache configuration files
+      command: rm -rf /etc/apache2
+
+    - name: Remove any remaining Apache-related directories
+      command: rm -rf /var/lib/apache2
+
+    - name: Remove Apache temporary files
+      command: rm -rf /var/cache/apache2
