@@ -21,8 +21,13 @@
         content: |
           <html>
             <head><title>Hello World</title></head>
-            <body><h1>Hello World from SJSU-
-            {{ inventory_hostname }}</h1></body>
+            <body>
+             {% if '1' in inventory_hostname %}
+             <h1>Hello World from SJSU-1</h1>
+             {% else %}
+             <h1>Hello World from SJSU-2</h1>
+             {% endif %}
+            </body>
           </html>
 
     - name: Change Apache port to 8080
